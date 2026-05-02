@@ -139,7 +139,66 @@ elif menu == "UTILIZATION":
     </div>
     """, unsafe_allow_html=True)
 
-    st.write("📊 Data Utilization akan ditampilkan di sini")
+    st.subheader("📂 Upload Data (Max 3 File Excel)")
+
+    uploaded_files = st.file_uploader(
+        "Upload file Excel",
+        type=["xlsx"],
+        accept_multiple_files=True
+    )
+
+    if uploaded_files:
+
+        if len(uploaded_files) > 3:
+            st.warning("⚠️ Maksimal upload 3 file saja!")
+        else:
+            df_list = []
+
+            # ===== BACA FILE =====
+            for file in uploaded_files:
+                df = pd.read_excel(file)
+                df_list.append(df)
+
+            # ===== GABUNGKAN FILE =====
+            df_all = pd.concat(df_list, ignore_index=True)
+
+            st.success("✅ File berhasil digabungkan")
+
+            # ===== PILIH KOLOM =====
+            st.subheader("🧩 Pilih Kolom yang Digunakan")
+
+            all_columns = df_all.columns.tolist()
+
+            selected_columns = st.multiselect(
+                "Pilih kolom:",
+                all_columns,
+                default=all_columns[:5]  # default awal
+            )
+
+            if selected_columns:
+
+                df_selected = df_all[selected_columns]
+
+                # ===== TAMBAH KOLOM REMARKS =====
+                if 'LICENSE NUMBER' in df_selected.columns:
+                    idx = df_selected.columns.get_loc('LICENSE NUMBER')
+                    df_selected.insert(idx + 1, 'REMARKS', '')
+                else:
+                    df_selected['REMARKS'] = ''
+
+                st.subheader("📊 Data Hasil Preparation")
+                st.dataframe(df_selected)
+
+                # ===== DOWNLOAD =====
+                to_excel = io.BytesIO()
+                df_selected.to_excel(to_excel, index=False)
+
+                st.download_button(
+                    label="⬇️ Download Hasil",
+                    data=to_excel.getvalue(),
+                    file_name="hasil_utilization.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
 
     if st.button("⬅️ Kembali ke Home"):
         st.session_state.menu = "HOME"
