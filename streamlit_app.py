@@ -78,32 +78,29 @@ html, body, [class*="css"] {
 """, unsafe_allow_html=True)
 
 # ================= SIDEBAR =================
-st.markdown("""
-<style>
+with st.sidebar:
 
-/* SIDEBAR */
-section[data-testid="stSidebar"] {
-    background: #0a1931;
-    color: white;
-}
+    st.markdown("""
+    <div style="text-align:center;">
+        <img src="https://cdn-icons-png.flaticon.com/512/1046/1046857.png" width="80">
+        <h2 style="color:#ffd369;">MENU</h2>
+    </div>
+    """, unsafe_allow_html=True)
 
-/* BUTTON SIDEBAR */
-section[data-testid="stSidebar"] .stButton>button {
-    width: 100%;
-    margin-bottom: 10px;
-    background: #112240;
-    color: #ffd369;
-    border: 1px solid #ffd369;
-    border-radius: 10px;
-}
+    st.markdown("---")
 
-section[data-testid="stSidebar"] .stButton>button:hover {
-    background: #ffd369;
-    color: #0a1931;
-}
+    # BUTTON MENU (bukan radio lagi)
+    if st.button("🏠 HOME"):
+        st.session_state.menu = "HOME"
+        st.rerun()
 
-</style>
-""", unsafe_allow_html=True)
+    if st.button("🚛 UTILIZATION"):
+        st.session_state.menu = "UTILIZATION"
+        st.rerun()
+
+    if st.button("📊 EVALUATION"):
+        st.session_state.menu = "EVALUATION"
+        st.rerun()
 
     st.session_state.menu = selected_menu
 
