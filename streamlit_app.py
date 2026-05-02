@@ -139,7 +139,7 @@ elif menu == "UTILIZATION":
     </div>
     """, unsafe_allow_html=True)
 
-    st.subheader("📂 Upload Data (Max 3 File Excel)")
+    st.subheader("📂 Upload data inside, outside, dan unit locked")
 
     uploaded_files = st.file_uploader(
         "Upload file Excel",
@@ -149,6 +149,7 @@ elif menu == "UTILIZATION":
 
     if uploaded_files:
 
+        # ===== VALIDASI JUMLAH FILE =====
         if len(uploaded_files) > 3:
             st.warning("⚠️ Maksimal upload 3 file saja!")
         else:
@@ -156,12 +157,15 @@ elif menu == "UTILIZATION":
 
             # ===== BACA FILE =====
             for file in uploaded_files:
-                df = pd.read_excel(file)
-                df_list.append(df)
+                try:
+                    df = pd.read_excel(file)
+                    df_list.append(df)
+                except Exception as e:
+                    st.error(f"Gagal membaca file: {file.name}")
+                    st.stop()
 
             # ===== GABUNGKAN FILE =====
             df_all = pd.concat(df_list, ignore_index=True)
-
             st.success("✅ File berhasil digabungkan")
 
             # ===== PILIH KOLOM =====
@@ -169,15 +173,36 @@ elif menu == "UTILIZATION":
 
             all_columns = df_all.columns.tolist()
 
+            # ===== DEFAULT KOLOM =====
+            default_cols = [
+                'NO',
+                'LICENSE NUMBER',
+                'SHIPMENT NUMBER',
+                'SHIPMENT STATUS',
+                'DRIVER 1',
+                'DRIVER 2',
+                'CURRENT STATUS',
+                'COMPLETE PLAN',
+                'OWNERSHIP UNIT',
+                'LIVE LOCATION',
+                'LAST DROP LOCATION'
+            ]
+
+            # ===== AMBIL YANG ADA DI DATA =====
+            default_existing = [col for col in default_cols if col in all_columns]
+
             selected_columns = st.multiselect(
                 "Pilih kolom:",
                 all_columns,
-                default=all_columns[:5]  # default awal
+                default=default_existing
             )
 
+            st.info(f"Default kolom terpilih: {len(default_existing)} kolom")
+
+            # ===== PROSES DATA =====
             if selected_columns:
 
-                df_selected = df_all[selected_columns]
+                df_selected = df_all[selected_columns].copy()
 
                 # ===== TAMBAH KOLOM REMARKS =====
                 if 'LICENSE NUMBER' in df_selected.columns:
@@ -187,7 +212,7 @@ elif menu == "UTILIZATION":
                     df_selected['REMARKS'] = ''
 
                 st.subheader("📊 Data Hasil Preparation")
-                st.dataframe(df_selected)
+                st.dataframe(df_selected, use_container_width=True)
 
                 # ===== DOWNLOAD =====
                 to_excel = io.BytesIO()
@@ -200,10 +225,16 @@ elif menu == "UTILIZATION":
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
 
+            else:
+                st.warning("⚠️ Pilih minimal 1 kolom")
+
+    else:
+        st.info("Silakan upload file terlebih dahulu")
+
+    # ===== BUTTON BACK =====
     if st.button("⬅️ Kembali ke Home"):
         st.session_state.menu = "HOME"
         st.rerun()
-
 # ================= EVALUATION =================
 elif menu == "EVALUATION":
 
