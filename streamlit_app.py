@@ -5,7 +5,7 @@ import streamlit as st
 # ================= CONFIG (WAJIB PALING ATAS) =================
 st.set_page_config(
     page_title="Dashboard Transport",
-    page_icon="wingbox.jpeg",  # 👈 INI YANG DIGANTI
+    page_icon="wingbox.jpg",  
     layout="wide"
 )
 
