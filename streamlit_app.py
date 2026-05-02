@@ -79,7 +79,7 @@ html, body, [class*="css"] {
 
 # ================= SIDEBAR =================
 with st.sidebar:
-    st.markdown("## 📊 MENU")
+    st.markdown("## 🚛 MENU")
 
     selected_menu = st.radio(
         "",
