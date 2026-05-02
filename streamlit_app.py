@@ -79,28 +79,13 @@ html, body, [class*="css"] {
 
 # ================= SIDEBAR =================
 with st.sidebar:
+    st.markdown("## 📊 MENU")
 
-    st.markdown("""
-    <div style="text-align:center;">
-        <img src="https://cdn-icons-png.flaticon.com/512/1046/1046857.png" width="80">
-        <h2 style="color:#ffd369;">MENU</h2>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("---")
-
-    # BUTTON MENU (bukan radio lagi)
-    if st.button("🏠 HOME"):
-        st.session_state.menu = "HOME"
-        st.rerun()
-
-    if st.button("🚛 UTILIZATION"):
-        st.session_state.menu = "UTILIZATION"
-        st.rerun()
-
-    if st.button("📊 EVALUATION"):
-        st.session_state.menu = "EVALUATION"
-        st.rerun()
+    selected_menu = st.radio(
+        "",
+        ["HOME", "UTILIZATION", "EVALUATION"],
+        index=["HOME", "UTILIZATION", "EVALUATION"].index(st.session_state.menu)
+    )
 
     st.session_state.menu = selected_menu
 
