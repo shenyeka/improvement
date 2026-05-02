@@ -78,14 +78,32 @@ html, body, [class*="css"] {
 """, unsafe_allow_html=True)
 
 # ================= SIDEBAR =================
-with st.sidebar:
-    st.markdown("## 📊 MENU")
+st.markdown("""
+<style>
 
-    selected_menu = st.radio(
-        "",
-        ["HOME", "UTILIZATION", "EVALUATION"],
-        index=["HOME", "UTILIZATION", "EVALUATION"].index(st.session_state.menu)
-    )
+/* SIDEBAR */
+section[data-testid="stSidebar"] {
+    background: #0a1931;
+    color: white;
+}
+
+/* BUTTON SIDEBAR */
+section[data-testid="stSidebar"] .stButton>button {
+    width: 100%;
+    margin-bottom: 10px;
+    background: #112240;
+    color: #ffd369;
+    border: 1px solid #ffd369;
+    border-radius: 10px;
+}
+
+section[data-testid="stSidebar"] .stButton>button:hover {
+    background: #ffd369;
+    color: #0a1931;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
     st.session_state.menu = selected_menu
 
