@@ -1,20 +1,26 @@
 import pandas as pd
 import io
+import streamlit as st
 
+# ================= CONFIG (WAJIB PALING ATAS) =================
+st.set_page_config(
+    page_title="Dashboard Transport",
+    layout="wide"
+)
+
+# ================= SESSION STATE =================
+if "menu" not in st.session_state:
+    st.session_state.menu = "HOME"
+
+# ================= CUSTOM CSS =================
 st.markdown("""
 <style>
-/* BASE */
+
+/* BACKGROUND */
 html, body, [class*="css"] {
     font-family: 'Poppins', sans-serif;
     background: linear-gradient(135deg, #0a1931 0%, #16213e 100%);
-    color: #f5f5f5;
-}
-
-/* MAIN CONTAINER */
-.main {
-    background: rgba(10, 25, 49, 0.9);
-    border-radius: 18px;
-    padding: 2rem;
+    color: #ffffff;
 }
 
 /* HEADER */
@@ -22,9 +28,11 @@ html, body, [class*="css"] {
     background: linear-gradient(135deg, #0a1931, #1f4068);
     color: #ffd369;
     padding: 2.5rem;
-    border-radius: 18px;
+    border-radius: 15px;
     text-align: center;
+    font-size: 28px;
     font-weight: bold;
+    margin-bottom: 30px;
 }
 
 /* CARD MENU */
@@ -46,14 +54,14 @@ html, body, [class*="css"] {
 
 /* TITLE */
 .menu-title {
-    font-size: 28px;
+    font-size: 26px;
     font-weight: bold;
     color: #ffd369;
 }
 
 /* SUBTITLE */
 .menu-sub {
-    color: #eaeaea;
+    color: #dddddd;
     font-size: 14px;
 }
 
@@ -63,21 +71,39 @@ html, body, [class*="css"] {
     color: #0a1931;
     border-radius: 10px;
     font-weight: bold;
+    padding: 0.6rem 1.5rem;
 }
+
 </style>
 """, unsafe_allow_html=True)
 
+# ================= SIDEBAR =================
+with st.sidebar:
+    st.markdown("## 📊 MENU")
+
+    selected_menu = st.radio(
+        "",
+        ["HOME", "UTILIZATION", "EVALUATION"],
+        index=["HOME", "UTILIZATION", "EVALUATION"].index(st.session_state.menu)
+    )
+
+    st.session_state.menu = selected_menu
+
+# ================= ROUTING =================
+menu = st.session_state.menu
+
+# ================= HOME =================
 if menu == "HOME":
 
     st.markdown("""
     <div class='header-container'>
-        UNIT ANALYSIS SYSTEM
+        DASHBOARD TRANSPORT SYSTEM
     </div>
     """, unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
 
-    # ================= UTILIZATION =================
+    # ===== UTILIZATION =====
     with col1:
         st.markdown("""
         <div class="menu-card">
@@ -88,8 +114,9 @@ if menu == "HOME":
 
         if st.button("Masuk Utilization"):
             st.session_state.menu = "UTILIZATION"
+            st.rerun()
 
-    # ================= EVALUATION =================
+    # ===== EVALUATION =====
     with col2:
         st.markdown("""
         <div class="menu-card">
@@ -100,3 +127,34 @@ if menu == "HOME":
 
         if st.button("Masuk Evaluation"):
             st.session_state.menu = "EVALUATION"
+            st.rerun()
+
+# ================= UTILIZATION =================
+elif menu == "UTILIZATION":
+
+    st.markdown("""
+    <div class='header-container'>
+        UTILIZATION DASHBOARD
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.write("📊 Data Utilization akan ditampilkan di sini")
+
+    if st.button("⬅️ Kembali ke Home"):
+        st.session_state.menu = "HOME"
+        st.rerun()
+
+# ================= EVALUATION =================
+elif menu == "EVALUATION":
+
+    st.markdown("""
+    <div class='header-container'>
+        EVALUATION DASHBOARD
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.write("📈 Analisis performa akan ditampilkan di sini")
+
+    if st.button("⬅️ Kembali ke Home"):
+        st.session_state.menu = "HOME"
+        st.rerun()
