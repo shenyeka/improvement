@@ -414,6 +414,10 @@ elif menu == "UTILIZATION":
                             label_visibility="collapsed"
                         )
 
+                        st.caption(
+                            "Isi tanggal hari ini."
+                        )
+
                         # =====================================================
                         # BUTTON ANALISA
                         # =====================================================
