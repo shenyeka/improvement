@@ -130,7 +130,8 @@ if menu == "HOME":
             st.session_state.menu = "EVALUATION"
             st.rerun()
 
-# ================= UTILIZATION =================# ================= UTILIZATION =================
+# ================= UTILIZATION =================#
+# ================= UTILIZATION =================
 elif menu == "UTILIZATION":
 
     st.markdown("""
@@ -147,9 +148,31 @@ elif menu == "UTILIZATION":
         accept_multiple_files=True
     )
 
+    # =====================================================
+    # CUSTOM CSS MULTISELECT
+    # =====================================================
+    st.markdown("""
+    <style>
+
+    /* TAG SELECTED */
+    .stMultiSelect [data-baseweb="tag"]{
+        background-color: #0F172A !important;
+        color: white !important;
+        border-radius: 8px !important;
+        border: none !important;
+    }
+
+    /* TEXT DI DALAM TAG */
+    .stMultiSelect [data-baseweb="tag"] span{
+        color: white !important;
+    }
+
+    </style>
+    """, unsafe_allow_html=True)
+
     if uploaded_files:
 
-        # ===== VALIDASI JUMLAH FILE =====
+        # ===== VALIDASI FILE =====
         if len(uploaded_files) > 3:
             st.warning("⚠️ Maksimal upload 3 file saja!")
 
@@ -157,8 +180,11 @@ elif menu == "UTILIZATION":
 
             df_list = []
 
-            # ===== BACA FILE =====
+            # =====================================================
+            # BACA FILE
+            # =====================================================
             for file in uploaded_files:
+
                 try:
                     df = pd.read_excel(file)
                     df_list.append(df)
@@ -167,85 +193,107 @@ elif menu == "UTILIZATION":
                     st.error(f"Gagal membaca file: {file.name}")
                     st.stop()
 
-            # ===== GABUNG FILE =====
+            # =====================================================
+            # GABUNG FILE
+            # =====================================================
             df_all = pd.concat(df_list, ignore_index=True)
 
             st.success("✅ File berhasil digabungkan")
 
             # =====================================================
-            # PILIH KOLOM
+            # TOMBOL DATA PREPARATION
             # =====================================================
-            st.subheader("🧩 Pilih Kolom yang Digunakan")
+            if st.button("📊 DATA PREPARATION"):
 
-            all_columns = df_all.columns.tolist()
-
-            default_cols = [
-                'NO',
-                'LICENSE NUMBER',
-                'SHIPMENT NUMBER',
-                'SHIPMENT STATUS',
-                'DRIVER 1',
-                'DRIVER 2',
-                'CURRENT STATUS',
-                'COMPLETE PLAN',
-                'OWNERSHIP UNIT',
-                'LIVE LOCATION',
-                'LAST DROP LOCATION'
-            ]
-
-            default_existing = [
-                col for col in default_cols
-                if col in all_columns
-            ]
-
-            selected_columns = st.multiselect(
-                "Pilih kolom:",
-                all_columns,
-                default=default_existing
-            )
-
-            st.info(f"Default kolom terpilih: {len(default_existing)} kolom")
+                st.session_state["show_preparation"] = True
 
             # =====================================================
-            # DATA PREPARATION
+            # TAMPILKAN PREPARATION
             # =====================================================
-            if selected_columns:
+            if st.session_state.get("show_preparation", False):
 
-                df_selected = df_all[selected_columns].copy()
+                st.subheader("🧩 Pilih Kolom yang Digunakan")
 
-                st.subheader("📊 Data Preparation")
-                st.dataframe(df_selected, use_container_width=True)
+                all_columns = df_all.columns.tolist()
 
                 # =====================================================
-                # TOMBOL ANALISA
+                # DEFAULT KOLOM
                 # =====================================================
-                if st.button("🔍 ANALISA UTILIZATION"):
+                default_cols = [
+                    'NO',
+                    'LICENSE NUMBER',
+                    'SHIPMENT NUMBER',
+                    'SHIPMENT STATUS',
+                    'DRIVER 1',
+                    'DRIVER 2',
+                    'CURRENT STATUS',
+                    'COMPLETE PLAN',
+                    'OWNERSHIP UNIT',
+                    'LIVE LOCATION',
+                    'LAST DROP LOCATION'
+                ]
 
-                    # ===== CEK KOLOM WAJIB =====
-                    required_cols = [
-                        'LICENSE NUMBER',
-                        'SHIPMENT STATUS'
-                    ]
+                # ===== AMBIL YANG ADA =====
+                default_existing = [
+                    col for col in default_cols
+                    if col in all_columns
+                ]
 
-                    missing_cols = [
-                        col for col in required_cols
-                        if col not in df_selected.columns
-                    ]
+                # =====================================================
+                # MULTISELECT
+                # =====================================================
+                selected_columns = st.multiselect(
+                    "Pilih kolom:",
+                    all_columns,
+                    default=default_existing
+                )
 
-                    if missing_cols:
+                st.info(
+                    f"Default kolom terpilih: "
+                    f"{len(default_existing)} kolom"
+                )
 
-                        st.warning(
-                            f"⚠️ Kolom berikut tidak ditemukan: "
-                            f"{', '.join(missing_cols)}"
-                        )
+                # =====================================================
+                # DATA PREPARATION
+                # =====================================================
+                if selected_columns:
 
-                    else:
+                    df_selected = df_all[selected_columns].copy()
 
-                        # =====================================================
-                        # TAMBAH REMARKS
-                        # =====================================================
-                        if 'REMARKS' not in df_selected.columns:
+                    st.subheader("📋 Data Preparation")
 
+                    st.dataframe(
+                        df_selected,
+                        use_container_width=True
+                    )
+
+                    # =====================================================
+                    # TOMBOL ANALISA
+                    # =====================================================
+                    if st.button("🔍 ANALISA UTILIZATION"):
+
+                        required_cols = [
+                            'LICENSE NUMBER',
+                            'SHIPMENT STATUS'
+                        ]
+
+                        missing_cols = [
+                            col for col in required_cols
+                            if col not in df_selected.columns
+                        ]
+
+                        if missing_cols:
+
+                            st.warning(
+                                f"⚠️ Kolom berikut tidak ditemukan: "
+                                f"{', '.join(missing_cols)}"
+                            )
+
+                        else:
+
+                            # =====================================================
+                            # INSERT REMARKS
+                            # =====================================================
                             idx = df_selected.columns.get_loc(
                                 'LICENSE NUMBER'
                             )
@@ -256,98 +304,106 @@ elif menu == "UTILIZATION":
                                 ''
                             )
 
-                        # =====================================================
-                        # LOGIC 1 : ON ROAD
-                        # =====================================================
-                        df_selected['is_ongoing'] = (
-                            df_selected['SHIPMENT STATUS']
-                            .astype(str)
-                            .str.contains(
-                                'Onprogress',
-                                case=False,
-                                na=False
-                            )
-                        )
-
-                        df_selected['is_ready'] = (
-                            df_selected['SHIPMENT STATUS']
-                            .astype(str)
-                            .str.contains(
-                                'Ready',
-                                case=False,
-                                na=False
-                            )
-                        )
-
-                        # ===== GROUP PER NOPOL =====
-                        status_nopol = (
-                            df_selected
-                            .groupby('LICENSE NUMBER')
-                            .agg({
-                                'is_ongoing': 'max',
-                                'is_ready': 'max'
-                            })
-                        )
-
-                        # ===== ISI REMARKS =====
-                        df_selected['REMARKS'] = (
-                            df_selected['LICENSE NUMBER']
-                            .map(
-                                lambda x:
-                                    'ON ROAD'
-                                    if (
-                                        status_nopol.loc[x, 'is_ongoing']
-                                        and status_nopol.loc[x, 'is_ready']
-                                    )
-                                    else ''
-                            )
-                        )
-
-                        # ===== HAPUS KOLOM BANTU =====
-                        df_selected.drop(
-                            columns=[
-                                'is_ongoing',
-                                'is_ready'
-                            ],
-                            inplace=True
-                        )
-
-                        # =====================================================
-                        # HASIL ANALISA
-                        # =====================================================
-                        st.success("✅ Analisa berhasil dilakukan")
-
-                        st.subheader("📋 Hasil Analisa Utilization")
-
-                        st.dataframe(
-                            df_selected,
-                            use_container_width=True
-                        )
-
-                        # =====================================================
-                        # DOWNLOAD
-                        # =====================================================
-                        to_excel = io.BytesIO()
-
-                        with pd.ExcelWriter(
-                            to_excel,
-                            engine='openpyxl'
-                        ) as writer:
-
-                            df_selected.to_excel(
-                                writer,
-                                index=False
+                            # =====================================================
+                            # LOGIC ON ROAD
+                            # =====================================================
+                            df_selected['is_ongoing'] = (
+                                df_selected['SHIPMENT STATUS']
+                                .astype(str)
+                                .str.contains(
+                                    'Onprogress',
+                                    case=False,
+                                    na=False
+                                )
                             )
 
-                        st.download_button(
-                            label="⬇️ Download Hasil Analisa",
-                            data=to_excel.getvalue(),
-                            file_name="hasil_utilization.xlsx",
-                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                        )
+                            df_selected['is_ready'] = (
+                                df_selected['SHIPMENT STATUS']
+                                .astype(str)
+                                .str.contains(
+                                    'Ready',
+                                    case=False,
+                                    na=False
+                                )
+                            )
 
-            else:
-                st.warning("⚠️ Pilih minimal 1 kolom")
+                            # =====================================================
+                            # GROUP PER NOPOL
+                            # =====================================================
+                            status_nopol = (
+                                df_selected
+                                .groupby('LICENSE NUMBER')
+                                .agg({
+                                    'is_ongoing': 'max',
+                                    'is_ready': 'max'
+                                })
+                            )
+
+                            # =====================================================
+                            # REMARKS
+                            # =====================================================
+                            df_selected['REMARKS'] = (
+                                df_selected['LICENSE NUMBER']
+                                .map(
+                                    lambda x:
+                                        'ON ROAD'
+                                        if (
+                                            status_nopol.loc[x, 'is_ongoing']
+                                            and status_nopol.loc[x, 'is_ready']
+                                        )
+                                        else ''
+                                )
+                            )
+
+                            # =====================================================
+                            # HAPUS KOLOM BANTU
+                            # =====================================================
+                            df_selected.drop(
+                                columns=[
+                                    'is_ongoing',
+                                    'is_ready'
+                                ],
+                                inplace=True
+                            )
+
+                            # =====================================================
+                            # HASIL ANALISA
+                            # =====================================================
+                            st.success("✅ Analisa berhasil dilakukan")
+
+                            st.subheader(
+                                "📊 Hasil Analisa Utilization"
+                            )
+
+                            st.dataframe(
+                                df_selected,
+                                use_container_width=True
+                            )
+
+                            # =====================================================
+                            # DOWNLOAD
+                            # =====================================================
+                            to_excel = io.BytesIO()
+
+                            with pd.ExcelWriter(
+                                to_excel,
+                                engine='openpyxl'
+                            ) as writer:
+
+                                df_selected.to_excel(
+                                    writer,
+                                    index=False
+                                )
+
+                            st.download_button(
+                                label="⬇️ Download Hasil Analisa",
+                                data=to_excel.getvalue(),
+                                file_name="hasil_utilization.xlsx",
+                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                            )
+
+                else:
+                    st.warning("⚠️ Pilih minimal 1 kolom")
 
     else:
         st.info("Silakan upload file terlebih dahulu")
