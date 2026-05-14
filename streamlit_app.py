@@ -129,6 +129,8 @@ if menu == "HOME":
         if st.button("Masuk Evaluation"):
             st.session_state.menu = "EVALUATION"
             st.rerun()
+
+
 # ================= UTILIZATION =================
 elif menu == "UTILIZATION":
 
@@ -222,18 +224,23 @@ elif menu == "UTILIZATION":
     # =====================================================
     if uploaded_files:
 
-        # ===== VALIDASI JUMLAH FILE =====
+        # =====================================================
+        # VALIDASI JUMLAH FILE
+        # =====================================================
         if len(uploaded_files) > 3:
             st.warning("⚠️ Maksimal upload 3 file.")
 
         else:
 
-            # ===== VALIDASI SIZE =====
+            # =====================================================
+            # VALIDASI SIZE
+            # =====================================================
             total_size_mb = sum(
                 file.size for file in uploaded_files
             ) / (1024 * 1024)
 
             if total_size_mb > 10:
+
                 st.warning(
                     "⚠️ Total ukuran file maksimal 10 MB."
                 )
@@ -248,13 +255,16 @@ elif menu == "UTILIZATION":
                 for file in uploaded_files:
 
                     try:
+
                         df = pd.read_excel(file)
                         df_list.append(df)
 
                     except Exception:
+
                         st.error(
                             f"Gagal membaca file: {file.name}"
                         )
+
                         st.stop()
 
                 # =====================================================
@@ -373,9 +383,28 @@ elif menu == "UTILIZATION":
                     )
 
                     # =====================================================
-                    # DATA PREPARATION RESULT
+                    # BUTTON SHOW RESULT PREPARATION
                     # =====================================================
-                    if selected_columns:
+                    st.markdown("<br>", unsafe_allow_html=True)
+
+                    if st.button(
+                        "📋 Tampilkan Hasil Preparation"
+                    ):
+
+                        st.session_state[
+                            "show_result_preparation"
+                        ] = True
+
+                    # =====================================================
+                    # SHOW RESULT PREPARATION
+                    # =====================================================
+                    if (
+                        st.session_state.get(
+                            "show_result_preparation",
+                            False
+                        )
+                        and selected_columns
+                    ):
 
                         df_selected = (
                             df_all[selected_columns]
@@ -389,7 +418,7 @@ elif menu == "UTILIZATION":
                             color:#0F172A;
                             font-weight:700;
                         ">
-                            📋 Data Preparation Results
+                            📋 Hasil Data Preparation
                         </h3>
                         """, unsafe_allow_html=True)
 
@@ -402,9 +431,12 @@ elif menu == "UTILIZATION":
                         # BUTTON ANALISA
                         # =====================================================
                         if st.button(
-                            "🔍 Utilization Analysis"
+                            "🔍 Analisa Utilization"
                         ):
 
+                            # =====================================================
+                            # VALIDASI KOLOM WAJIB
+                            # =====================================================
                             required_cols = [
                                 'LICENSE NUMBER',
                                 'SHIPMENT STATUS'
@@ -440,7 +472,9 @@ elif menu == "UTILIZATION":
                                 )
 
                                 # =====================================================
-                                # LOGIC ON ROAD
+                                # LOGIC 1
+                                # ON ROAD
+                                # SHIPMENT STATUS
                                 # =====================================================
                                 df_selected['is_ongoing'] = (
                                     df_selected[
@@ -467,7 +501,7 @@ elif menu == "UTILIZATION":
                                 )
 
                                 # =====================================================
-                                # GROUPING
+                                # GROUPING NOPOL
                                 # =====================================================
                                 status_nopol = (
                                     df_selected
@@ -475,13 +509,13 @@ elif menu == "UTILIZATION":
                                         'LICENSE NUMBER'
                                     )
                                     .agg({
-                                        'is_ongoing':'max',
-                                        'is_ready':'max'
+                                        'is_ongoing': 'max',
+                                        'is_ready': 'max'
                                     })
                                 )
 
                                 # =====================================================
-                                # REMARKS
+                                # REMARKS LOGIC 1
                                 # =====================================================
                                 df_selected['REMARKS'] = (
                                     df_selected[
@@ -504,6 +538,36 @@ elif menu == "UTILIZATION":
                                             else ''
                                     )
                                 )
+
+                                # =====================================================
+                                # LOGIC 2
+                                # CURRENT STATUS OTW
+                                # =====================================================
+                                mask_kosong = (
+                                    df_selected['REMARKS']
+                                    .astype(str)
+                                    .str.strip() == ''
+                                )
+
+                                # fleksibel jika kolom tidak ada
+                                if 'CURRENT STATUS' in df_selected.columns:
+
+                                    mask_otw = (
+                                        df_selected[
+                                            'CURRENT STATUS'
+                                        ]
+                                        .astype(str)
+                                        .str.contains(
+                                            'OTW',
+                                            case=False,
+                                            na=False
+                                        )
+                                    )
+
+                                    df_selected.loc[
+                                        mask_kosong & mask_otw,
+                                        'REMARKS'
+                                    ] = 'ON ROAD'
 
                                 # =====================================================
                                 # DROP TEMP COLUMN
@@ -530,7 +594,7 @@ elif menu == "UTILIZATION":
                                     color:#0F172A;
                                     font-weight:700;
                                 ">
-                                    📊 Analysis Results
+                                    📊 Hasil Analisa
                                 </h3>
                                 """, unsafe_allow_html=True)
 
@@ -562,13 +626,17 @@ elif menu == "UTILIZATION":
                                 )
 
                     else:
+
                         st.warning(
                             "⚠️ Pilih minimal 1 kolom."
                         )
 
     else:
-        st.info("Silakan upload file terlebih dahulu.")
-   
+
+        st.info(
+            "Silakan upload file terlebih dahulu."
+        )
+        
     # ===== BUTTON BACK =====
     if st.button("⬅️ Back to Home"):
         st.session_state.menu = "HOME"
