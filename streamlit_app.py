@@ -369,31 +369,9 @@ elif menu == "UTILIZATION":
                     )
 
                     # =====================================================
-                    # BUTTON SHOW PREPARATION
+                    # AUTO SHOW PREVIEW
                     # =====================================================
-                    st.markdown(
-                        "<br>",
-                        unsafe_allow_html=True
-                    )
-
-                    if st.button(
-                        "📋 Data Preparation"
-                    ):
-
-                        st.session_state[
-                            "show_result_preparation"
-                        ] = True
-
-                    # =====================================================
-                    # SHOW RESULT PREPARATION
-                    # =====================================================
-                    if (
-                        st.session_state.get(
-                            "show_result_preparation",
-                            False
-                        )
-                        and selected_columns
-                    ):
+                    if selected_columns:
 
                         df_selected = (
                             df_all[selected_columns]
@@ -482,7 +460,6 @@ elif menu == "UTILIZATION":
 
                                 # =====================================================
                                 # LOGIC 1
-                                # SHIPMENT STATUS
                                 # =====================================================
                                 df_selected['is_ongoing'] = (
                                     df_selected[
@@ -549,7 +526,6 @@ elif menu == "UTILIZATION":
 
                                 # =====================================================
                                 # LOGIC 2
-                                # CURRENT STATUS OTW
                                 # =====================================================
                                 mask_kosong = (
                                     df_selected['REMARKS']
@@ -581,21 +557,18 @@ elif menu == "UTILIZATION":
 
                                 # =====================================================
                                 # LOGIC 3
-                                # COMPLETE PLAN
                                 # =====================================================
                                 if (
                                     'COMPLETE PLAN'
                                     in df_selected.columns
                                 ):
 
-                                    # ===== UPDATE MASK =====
                                     mask_kosong = (
                                         df_selected['REMARKS']
                                         .astype(str)
                                         .str.strip() == ''
                                     )
 
-                                    # ===== CONVERT DATE =====
                                     df_selected[
                                         'COMPLETE PLAN'
                                     ] = pd.to_datetime(
@@ -605,14 +578,12 @@ elif menu == "UTILIZATION":
                                         errors='coerce'
                                     )
 
-                                    # ===== TANGGAL ANALISA =====
                                     tanggal_analisa_fix = (
                                         pd.to_datetime(
                                             tanggal_analisa
                                         ).normalize()
                                     )
 
-                                    # ===== ON ROAD =====
                                     mask_onroad = (
                                         df_selected[
                                             'COMPLETE PLAN'
@@ -620,7 +591,6 @@ elif menu == "UTILIZATION":
                                         >= tanggal_analisa_fix
                                     )
 
-                                    # ===== AVAILABLE =====
                                     mask_available = (
                                         df_selected[
                                             'COMPLETE PLAN'
@@ -628,7 +598,6 @@ elif menu == "UTILIZATION":
                                         < tanggal_analisa_fix
                                     )
 
-                                    # ===== APPLY =====
                                     df_selected.loc[
                                         mask_kosong & mask_onroad,
                                         'REMARKS'
@@ -651,7 +620,7 @@ elif menu == "UTILIZATION":
                                 )
 
                                 # =====================================================
-                                # CEK REMARKS KOSONG
+                                # SUMMARY
                                 # =====================================================
                                 jumlah_kosong = (
                                     df_selected[
@@ -663,9 +632,6 @@ elif menu == "UTILIZATION":
                                     .sum()
                                 )
 
-                                # =====================================================
-                                # SUMMARY
-                                # =====================================================
                                 total_onroad = (
                                     df_selected[
                                         'REMARKS'
@@ -778,7 +744,8 @@ elif menu == "UTILIZATION":
         st.info(
             "Silakan upload file terlebih dahulu."
         )
-        
+
+    
     # ===== BUTTON BACK =====
     if st.button("⬅️ Back to Home"):
         st.session_state.menu = "HOME"
