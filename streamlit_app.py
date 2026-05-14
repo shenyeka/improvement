@@ -269,8 +269,37 @@ elif menu == "UTILIZATION":
                 st.success("File berhasil digabungkan.")
 
                 # =====================================================
+                # PREVIEW DATA
+                # =====================================================
+                st.markdown("""
+                <h3 style="
+                    margin-top:20px;
+                    margin-bottom:10px;
+                    color:#0F172A;
+                    font-weight:700;
+                ">
+                    📄 Preview Data
+                </h3>
+
+                <p style="
+                    font-size:13px;
+                    color:#64748B;
+                    margin-top:0;
+                ">
+                    Menampilkan data gabungan sebelum proses preparation
+                </p>
+                """, unsafe_allow_html=True)
+
+                st.dataframe(
+                    df_all,
+                    use_container_width=True
+                )
+
+                # =====================================================
                 # BUTTON DATA PREPARATION
                 # =====================================================
+                st.markdown("<br>", unsafe_allow_html=True)
+
                 if st.button("📊 Data Preparation"):
 
                     st.session_state[
@@ -290,6 +319,7 @@ elif menu == "UTILIZATION":
                     # =====================================================
                     st.markdown("""
                     <h3 style="
+                        margin-top:25px;
                         margin-bottom:5px;
                         color:#0F172A;
                         font-weight:700;
@@ -345,7 +375,7 @@ elif menu == "UTILIZATION":
                     )
 
                     # =====================================================
-                    # DATA PREPARATION
+                    # DATA PREPARATION RESULT
                     # =====================================================
                     if selected_columns:
 
@@ -361,7 +391,7 @@ elif menu == "UTILIZATION":
                             color:#0F172A;
                             font-weight:700;
                         ">
-                            📋 Data Preparation
+                            📋 Hasil Data Preparation
                         </h3>
                         """, unsafe_allow_html=True)
 
@@ -539,11 +569,13 @@ elif menu == "UTILIZATION":
                         )
 
     else:
-        st.info("Silakan upload file terlebih dahulu.")        
+        st.info("Silakan upload file terlebih dahulu.")
+    
     # ===== BUTTON BACK =====
     if st.button("⬅️ Kembali ke Home"):
         st.session_state.menu = "HOME"
         st.rerun()
+
 # ================= EVALUATION =================
 elif menu == "EVALUATION":
 
