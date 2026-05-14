@@ -130,9 +130,10 @@ if menu == "HOME":
             st.session_state.menu = "EVALUATION"
             st.rerun()
 
-
 # ================= UTILIZATION =================
 elif menu == "UTILIZATION":
+
+    from datetime import datetime
 
     # =====================================================
     # HEADER
@@ -228,7 +229,10 @@ elif menu == "UTILIZATION":
         # VALIDASI JUMLAH FILE
         # =====================================================
         if len(uploaded_files) > 3:
-            st.warning("⚠️ Maksimal upload 3 file.")
+
+            st.warning(
+                "⚠️ Maksimal upload 3 file."
+            )
 
         else:
 
@@ -275,41 +279,21 @@ elif menu == "UTILIZATION":
                     ignore_index=True
                 )
 
-                st.success("File berhasil digabungkan.")
-
-                # =====================================================
-                # PREVIEW DATA
-                # =====================================================
-                st.markdown("""
-                <h3 style="
-                    margin-top:20px;
-                    margin-bottom:10px;
-                    color:#0F172A;
-                    font-weight:700;
-                ">
-                    📄 Preview Data
-                </h3>
-
-                <p style="
-                    font-size:13px;
-                    color:#64748B;
-                    margin-top:0;
-                ">
-                    Menampilkan data gabungan sebelum proses preparation
-                </p>
-                """, unsafe_allow_html=True)
-
-                st.dataframe(
-                    df_all,
-                    use_container_width=True
+                st.success(
+                    "✅ File berhasil digabungkan."
                 )
 
                 # =====================================================
                 # BUTTON DATA PREPARATION
                 # =====================================================
-                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown(
+                    "<br>",
+                    unsafe_allow_html=True
+                )
 
-                if st.button("📊 Data Preparation"):
+                if st.button(
+                    "📊 Data Preparation"
+                ):
 
                     st.session_state[
                         "show_preparation"
@@ -345,7 +329,9 @@ elif menu == "UTILIZATION":
                     </p>
                     """, unsafe_allow_html=True)
 
-                    all_columns = df_all.columns.tolist()
+                    all_columns = (
+                        df_all.columns.tolist()
+                    )
 
                     # =====================================================
                     # DEFAULT KOLOM
@@ -383,9 +369,12 @@ elif menu == "UTILIZATION":
                     )
 
                     # =====================================================
-                    # BUTTON SHOW RESULT PREPARATION
+                    # BUTTON SHOW PREPARATION
                     # =====================================================
-                    st.markdown("<br>", unsafe_allow_html=True)
+                    st.markdown(
+                        "<br>",
+                        unsafe_allow_html=True
+                    )
 
                     if st.button(
                         "📋 Tampilkan Hasil Preparation"
@@ -425,6 +414,26 @@ elif menu == "UTILIZATION":
                         st.dataframe(
                             df_selected,
                             use_container_width=True
+                        )
+
+                        # =====================================================
+                        # INPUT TANGGAL ANALISA
+                        # =====================================================
+                        st.markdown("""
+                        <h3 style="
+                            margin-top:25px;
+                            margin-bottom:10px;
+                            color:#0F172A;
+                            font-weight:700;
+                        ">
+                            📅 Tanggal Analisa
+                        </h3>
+                        """, unsafe_allow_html=True)
+
+                        tanggal_analisa = st.date_input(
+                            "Pilih tanggal analisa",
+                            value=datetime.today(),
+                            label_visibility="collapsed"
                         )
 
                         # =====================================================
@@ -473,7 +482,6 @@ elif menu == "UTILIZATION":
 
                                 # =====================================================
                                 # LOGIC 1
-                                # ON ROAD
                                 # SHIPMENT STATUS
                                 # =====================================================
                                 df_selected['is_ongoing'] = (
@@ -549,8 +557,10 @@ elif menu == "UTILIZATION":
                                     .str.strip() == ''
                                 )
 
-                                # fleksibel jika kolom tidak ada
-                                if 'CURRENT STATUS' in df_selected.columns:
+                                if (
+                                    'CURRENT STATUS'
+                                    in df_selected.columns
+                                ):
 
                                     mask_otw = (
                                         df_selected[
@@ -570,6 +580,66 @@ elif menu == "UTILIZATION":
                                     ] = 'ON ROAD'
 
                                 # =====================================================
+                                # LOGIC 3
+                                # COMPLETE PLAN
+                                # =====================================================
+                                if (
+                                    'COMPLETE PLAN'
+                                    in df_selected.columns
+                                ):
+
+                                    # ===== UPDATE MASK =====
+                                    mask_kosong = (
+                                        df_selected['REMARKS']
+                                        .astype(str)
+                                        .str.strip() == ''
+                                    )
+
+                                    # ===== CONVERT DATE =====
+                                    df_selected[
+                                        'COMPLETE PLAN'
+                                    ] = pd.to_datetime(
+                                        df_selected[
+                                            'COMPLETE PLAN'
+                                        ],
+                                        errors='coerce'
+                                    )
+
+                                    # ===== TANGGAL ANALISA =====
+                                    tanggal_analisa_fix = (
+                                        pd.to_datetime(
+                                            tanggal_analisa
+                                        ).normalize()
+                                    )
+
+                                    # ===== ON ROAD =====
+                                    mask_onroad = (
+                                        df_selected[
+                                            'COMPLETE PLAN'
+                                        ]
+                                        >= tanggal_analisa_fix
+                                    )
+
+                                    # ===== AVAILABLE =====
+                                    mask_available = (
+                                        df_selected[
+                                            'COMPLETE PLAN'
+                                        ]
+                                        < tanggal_analisa_fix
+                                    )
+
+                                    # ===== APPLY =====
+                                    df_selected.loc[
+                                        mask_kosong & mask_onroad,
+                                        'REMARKS'
+                                    ] = 'ON ROAD'
+
+                                    df_selected.loc[
+                                        mask_kosong & mask_available,
+                                        'REMARKS'
+                                    ] = 'AVAILABLE'
+
+                                # =====================================================
                                 # DROP TEMP COLUMN
                                 # =====================================================
                                 df_selected.drop(
@@ -581,12 +651,65 @@ elif menu == "UTILIZATION":
                                 )
 
                                 # =====================================================
-                                # RESULT
+                                # CEK REMARKS KOSONG
                                 # =====================================================
-                                st.success(
-                                    "Analisa berhasil dilakukan."
+                                jumlah_kosong = (
+                                    df_selected[
+                                        'REMARKS'
+                                    ]
+                                    .astype(str)
+                                    .str.strip()
+                                    .eq('')
+                                    .sum()
                                 )
 
+                                # =====================================================
+                                # SUMMARY
+                                # =====================================================
+                                total_onroad = (
+                                    df_selected[
+                                        'REMARKS'
+                                    ]
+                                    == 'ON ROAD'
+                                ).sum()
+
+                                total_available = (
+                                    df_selected[
+                                        'REMARKS'
+                                    ]
+                                    == 'AVAILABLE'
+                                ).sum()
+
+                                # =====================================================
+                                # HASIL ANALISA
+                                # =====================================================
+                                st.success(
+                                    "✅ Analisa berhasil dilakukan."
+                                )
+
+                                col1, col2, col3 = st.columns(3)
+
+                                with col1:
+                                    st.metric(
+                                        "ON ROAD",
+                                        total_onroad
+                                    )
+
+                                with col2:
+                                    st.metric(
+                                        "AVAILABLE",
+                                        total_available
+                                    )
+
+                                with col3:
+                                    st.metric(
+                                        "REMARKS KOSONG",
+                                        jumlah_kosong
+                                    )
+
+                                # =====================================================
+                                # DATA HASIL
+                                # =====================================================
                                 st.markdown("""
                                 <h3 style="
                                     margin-top:25px;
@@ -602,6 +725,27 @@ elif menu == "UTILIZATION":
                                     df_selected,
                                     use_container_width=True
                                 )
+
+                                # =====================================================
+                                # FILTER AVAILABLE
+                                # =====================================================
+                                df_available = (
+                                    df_selected[
+                                        df_selected[
+                                            'REMARKS'
+                                        ]
+                                        == 'AVAILABLE'
+                                    ]
+                                )
+
+                                with st.expander(
+                                    "📋 Lihat Unit Available"
+                                ):
+
+                                    st.dataframe(
+                                        df_available,
+                                        use_container_width=True
+                                    )
 
                                 # =====================================================
                                 # DOWNLOAD
@@ -622,7 +766,11 @@ elif menu == "UTILIZATION":
                                     label="⬇️ Export Analysis",
                                     data=to_excel.getvalue(),
                                     file_name="hasil_utilization.xlsx",
-                                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                    mime=(
+                                        "application/"
+                                        "vnd.openxmlformats-officedocument."
+                                        "spreadsheetml.sheet"
+                                    )
                                 )
 
                     else:
