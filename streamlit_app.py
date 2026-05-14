@@ -375,9 +375,28 @@ elif menu == "UTILIZATION":
                     )
 
                     # =====================================================
-                    # DATA PREPARATION RESULT
+                    # BUTTON SHOW RESULT PREPARATION
                     # =====================================================
-                    if selected_columns:
+                    st.markdown("<br>", unsafe_allow_html=True)
+
+                    if st.button(
+                        "📋 Tampilkan Hasil Preparation"
+                    ):
+
+                        st.session_state[
+                            "show_result_preparation"
+                        ] = True
+
+                    # =====================================================
+                    # SHOW RESULT PREPARATION
+                    # =====================================================
+                    if (
+                        st.session_state.get(
+                            "show_result_preparation",
+                            False
+                        )
+                        and selected_columns
+                    ):
 
                         df_selected = (
                             df_all[selected_columns]
