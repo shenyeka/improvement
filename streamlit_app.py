@@ -129,7 +129,6 @@ if menu == "HOME":
         if st.button("Masuk Evaluation"):
             st.session_state.menu = "EVALUATION"
             st.rerun()
-
 # ================= UTILIZATION =================
 elif menu == "UTILIZATION":
 
@@ -375,28 +374,9 @@ elif menu == "UTILIZATION":
                     )
 
                     # =====================================================
-                    # BUTTON SHOW RESULT PREPARATION
+                    # DATA PREPARATION RESULT
                     # =====================================================
-                    st.markdown("<br>", unsafe_allow_html=True)
-
-                    if st.button(
-                        "📋 Tampilkan Hasil Preparation"
-                    ):
-
-                        st.session_state[
-                            "show_result_preparation"
-                        ] = True
-
-                    # =====================================================
-                    # SHOW RESULT PREPARATION
-                    # =====================================================
-                    if (
-                        st.session_state.get(
-                            "show_result_preparation",
-                            False
-                        )
-                        and selected_columns
-                    ):
+                    if selected_columns:
 
                         df_selected = (
                             df_all[selected_columns]
@@ -589,7 +569,7 @@ elif menu == "UTILIZATION":
 
     else:
         st.info("Silakan upload file terlebih dahulu.")
-    
+   
     # ===== BUTTON BACK =====
     if st.button("⬅️ Kembali ke Home"):
         st.session_state.menu = "HOME"
