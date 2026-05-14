@@ -377,7 +377,7 @@ elif menu == "UTILIZATION":
                     )
 
                     if st.button(
-                        "📋 Tampilkan Hasil Preparation"
+                        "📋 Preview Data"
                     ):
 
                         st.session_state[
@@ -407,7 +407,7 @@ elif menu == "UTILIZATION":
                             color:#0F172A;
                             font-weight:700;
                         ">
-                            📋 Hasil Data Preparation
+                            📋 Data Preparation Results
                         </h3>
                         """, unsafe_allow_html=True)
 
@@ -426,7 +426,7 @@ elif menu == "UTILIZATION":
                             color:#0F172A;
                             font-weight:700;
                         ">
-                            📅 Tanggal Analisa
+                            📅 Analysis Date
                         </h3>
                         """, unsafe_allow_html=True)
 
@@ -440,7 +440,7 @@ elif menu == "UTILIZATION":
                         # BUTTON ANALISA
                         # =====================================================
                         if st.button(
-                            "🔍 Analisa Utilization"
+                            "🔍 Utilization Analysis"
                         ):
 
                             # =====================================================
@@ -717,7 +717,7 @@ elif menu == "UTILIZATION":
                                     color:#0F172A;
                                     font-weight:700;
                                 ">
-                                    📊 Hasil Analisa
+                                    📊 Analysis Results
                                 </h3>
                                 """, unsafe_allow_html=True)
 
@@ -739,7 +739,7 @@ elif menu == "UTILIZATION":
                                 )
 
                                 with st.expander(
-                                    "📋 Lihat Unit Available"
+                                    "📋 View Available Units"
                                 ):
 
                                     st.dataframe(
@@ -772,12 +772,6 @@ elif menu == "UTILIZATION":
                                         "spreadsheetml.sheet"
                                     )
                                 )
-
-                    else:
-
-                        st.warning(
-                            "⚠️ Pilih minimal 1 kolom."
-                        )
 
     else:
 
