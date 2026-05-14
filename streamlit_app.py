@@ -331,7 +331,7 @@ elif menu == "UTILIZATION":
                         color:#64748B;
                         margin-top:0;
                     ">
-                        Pilih kolom yang ingin ditampilkan
+                        Pilih kolom yang digunakan
                     </p>
                     """, unsafe_allow_html=True)
 
@@ -341,7 +341,6 @@ elif menu == "UTILIZATION":
                     # DEFAULT KOLOM
                     # =====================================================
                     default_cols = [
-                        'NO',
                         'LICENSE NUMBER',
                         'SHIPMENT NUMBER',
                         'SHIPMENT STATUS',
@@ -390,7 +389,7 @@ elif menu == "UTILIZATION":
                             color:#0F172A;
                             font-weight:700;
                         ">
-                            📋 Hasil Data Preparation
+                            📋 Data Preparation Results
                         </h3>
                         """, unsafe_allow_html=True)
 
@@ -403,7 +402,7 @@ elif menu == "UTILIZATION":
                         # BUTTON ANALISA
                         # =====================================================
                         if st.button(
-                            "🔍 Analisa Utilization"
+                            "🔍 Utilization Analysis"
                         ):
 
                             required_cols = [
@@ -531,7 +530,7 @@ elif menu == "UTILIZATION":
                                     color:#0F172A;
                                     font-weight:700;
                                 ">
-                                    📊 Hasil Analisa
+                                    📊 Analysis Results
                                 </h3>
                                 """, unsafe_allow_html=True)
 
