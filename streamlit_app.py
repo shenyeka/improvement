@@ -555,7 +555,7 @@ elif menu == "UTILIZATION":
                                     )
 
                                 st.download_button(
-                                    label="⬇️ Download Hasil",
+                                    label="⬇️ Export Analysis",
                                     data=to_excel.getvalue(),
                                     file_name="hasil_utilization.xlsx",
                                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -570,7 +570,7 @@ elif menu == "UTILIZATION":
         st.info("Silakan upload file terlebih dahulu.")
    
     # ===== BUTTON BACK =====
-    if st.button("⬅️ Kembali ke Home"):
+    if st.button("⬅️ Back to Home"):
         st.session_state.menu = "HOME"
         st.rerun()
 
