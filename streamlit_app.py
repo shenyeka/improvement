@@ -377,7 +377,7 @@ elif menu == "UTILIZATION":
                     )
 
                     if st.button(
-                        "📋 Preview Data"
+                        "📋 Data Preparation"
                     ):
 
                         st.session_state[
@@ -407,7 +407,7 @@ elif menu == "UTILIZATION":
                             color:#0F172A;
                             font-weight:700;
                         ">
-                            📋 Data Preparation Results
+                            📋 Preview Data
                         </h3>
                         """, unsafe_allow_html=True)
 
